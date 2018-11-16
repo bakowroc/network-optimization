@@ -18,13 +18,13 @@
 {\footnotesize \textsuperscript{} Zaawansowane metody projektowania sieci teleinformatycznych}
 }
 
-\author{\IEEEauthorblockN{1\textsuperscript{st} Bakowicz Maciej}
+\author{\IEEEauthorblockN{Bakowicz Maciej}
 \IEEEauthorblockA{\textit{Wrocław University of Science and Technology} \\
 Faculty of Electronics \\
 Wrocław, Poland \\
 }
 \and
-\IEEEauthorblockN{2\textsuperscript{nd} Czajkowski Michał}
+\IEEEauthorblockN{Czajkowski Michał}
 \IEEEauthorblockA{\textit{Wrocław University of Science and Technology} \\
 Faculty of Electronics \\
 Wrocław, Poland \\
@@ -33,34 +33,34 @@ Wrocław, Poland \\
 
 \maketitle
 
-\begin{abstract}
-This document is a model and instructions for \LaTeX.
-This and the IEEEtran.cls file define the components of your paper [title, text, heads, etc.]. *CRITICAL: Do Not Use Symbols, Special Characters, Footnotes, 
-or Math in Paper Title or Abstract.
-\end{abstract}
-
-\begin{IEEEkeywords}
-component, formatting, style, styling, insert
-\end{IEEEkeywords}
-
 \section{Introduction}
-This document is a model and instructions for \LaTeX.
-Please observe the conference page limits. 
+Space Division Multiplexing (SDM) optical networks solve the problem with insufficient capacity of bandwidth by redistributing the traffic (or to be more specific a part of it - \textit{slices}) over cores inside a fiber (Multicore fiber - MCF). Each core inside one fiber can also support different bit rate \cite{b1}.
+\\
+The hard part of using SDM with MCF is optimizing the traffic to allocate as much bandwidth in each core as possible without data loss or delays and to change the path when allocating cores within a current is impossible.
+\\
+This document describes a solution for such problem by implementing algorithms in a software (an application). 
 
 \section{Related works}
-To better understand the problem it is necessary to achieve some basic knowledge about how the SDM networks are built and what solution are used there (e.g. in physical fiber links)\cite{b4}.
+To better understand the problem it is necessary to achieve some basic knowledge about how the SDM networks are built and what solution are used there (e.g. in physical fiber links)\cite{b2}.
 \\ \\
-To solve the optimization problem we use Python 3.7.1\cite{b1} programming language due to it's flexibility and huge amounts of well developed mathematics and data structures packages. Python is also the language we know the most among the others so we can be sure solving the problem within it is going to go without solving side problems such as language syntax.
+To solve the optimization problem we use Python 3.7.1\cite{b3} programming language due to it's flexibility and huge amounts of well developed mathematics and data structures packages. Python is also the language we know the most among the others so we can be sure solving the problem within it is going to go without solving side problems such as language syntax.
 \\ \\
-For more complex data structures we use Numpy \cite {b2} which is a Python package. It provides structures like matrix, vector or more advanced dictionaries than Python itself. With this package also comes methods for that structures, like deleting, reshaping, transforming or transposing.
+For more complex data structures we use Numpy \cite {b4} which is a Python package. It provides structures like matrix, vector or more advanced dictionaries than Python itself. With this package also comes methods for that structures, like deleting, reshaping, transforming or transposing.
 \\ \\
-In a summary of this project we include some of data plots. To make it easy and simple we use Python side plots and datagrams provided by another package - matplotlib \cite{b3}. Besides simple plots this package allows to comparing different data structures within one plot or just export generated plot into image format such as JPEG or PNG.
+In a summary of this project we include some of data plots. To make it easy and simple we use Python side plots and datagrams provided by another package - matplotlib \cite{b5}. Besides simple plots this package allows to comparing different data structures within one plot or just export generated plot into image format such as JPEG or PNG.
 
 \begin{thebibliography}{00}
-\bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
-\bibitem{b2} A
-\bibitem{b3} B
-\bibitem{b4} A. Muhammad, G. Zervas, G. Saridis, E. H. Salas, D. Simeonidou, R. Forchheimer ``Flexible and Synthetic SDM Networks with Multi-core-Fibers Implemented by Programmable ROADMs'', Conference: ECOC 2014, At Cannes -France, September 2014
+
+\bibitem{b1} D. Rafique, T. Rahman, A Napoli, M. Kuschnerov, G. Lehmann, B. Spinnler1 ``Flex-grid optical networks: spectrum allocation and nonlinear dynamics of super-channels'', Page 1-2, Coriant R\&D GmbH, St.-Martin-Str. 76, 81541, Munich, Germany, Eindhoven University of Technology, Eindhoven, Netherlands, 2013
+
+\bibitem{b2} A. Muhammad, G. Zervas, G. Saridis, E. H. Salas, D. Simeonidou, R. Forchheimer ``Flexible and Synthetic SDM Networks with Multi-core-Fibers Implemented by Programmable ROADMs'', Conference: ECOC 2014, At Cannes -France, September 2014
+
+\bibitem{b3} Python Software Foundation ``Python 3.7.1 documentation'', access via Internet: \textit{https://docs.python.org/3/} from 16th November 2018.
+
+\bibitem{b4} The Scipy community ``NumPy Reference'', June 10, 2017, acces via Internet \textit{https://docs.scipy.org/doc/numpy-1.13.0/reference/} from 16 November 2018
+
+\bibitem{b5} J. Hunter, D. Dale, E. Firing, M. Droettboom ``Matplotlib Release 3.0.0'', September 21, 2018, access via Internet \textit{https://matplotlib.org/Matplotlib.pdf}
+
 \end{thebibliography}
 \vspace{12pt}
 \end{document}
