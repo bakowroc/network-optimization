@@ -18,13 +18,13 @@
 {\footnotesize \textsuperscript{} Zaawansowane metody projektowania sieci teleinformatycznych}
 }
 
-\author{\IEEEauthorblockN{Bakowicz Maciej}
+\author{\IEEEauthorblockN{Maciej Bakowicz}
 \IEEEauthorblockA{\textit{Wrocław University of Science and Technology} \\
 Faculty of Electronics \\
 Wrocław, Poland \\
 }
 \and
-\IEEEauthorblockN{Czajkowski Michał}
+\IEEEauthorblockN{Michał Czajkowski}
 \IEEEauthorblockA{\textit{Wrocław University of Science and Technology} \\
 Faculty of Electronics \\
 Wrocław, Poland \\
@@ -34,7 +34,7 @@ Wrocław, Poland \\
 \maketitle
 
 \section{Introduction}
-Flex-grid architecture use a time and wavelength division technology. It is used in networks commonly to increase transmitted capacity within a single-mode fiber (SMF) \cite{sdm-walko}. Using this solution encounters other problem due to non-linear Shannon limit which is related to maximum power which can be applied into an optical fibre (effects such as chromatic dispersion and non-linearity of the signal cause additional signal disortion)\cite{shannon}.
+Flex-grid architecture uses a time and wavelength division technology. It is commonly used in networks to increase transmitted capacity within a single-mode fiber (SMF) \cite{sdm-walko}. Using this solution encounters other problem due to non-linear Shannon limit which is related to maximum power which can be applied into an optical fibre (effects such as chromatic dispersion and non-linearity of the signal cause additional signal disortion)\cite{shannon}.
 \\
 Space Division Multiplexing (SDM) architecture used by optical networks solve the problem with insufficient capacity of bandwidth by redistributing the traffic (or to be more specific a part of it - \textit{slices}) over cores inside a multicore fiber (MCF). Each core inside one fiber can also support different bit rate \cite{flex-intro}.
 \\
@@ -43,24 +43,28 @@ The hard part of using SDM with MCF is optimizing the traffic to allocate as muc
 This document describes a solution for such problem by implementing algorithms in a software (an application). 
 
 \section{Related works}
-To better understand the problem it is necessary to achieve some basic knowledge about how the SDM networks are built and what solution are used there (e.g. in physical fiber links) \cite{sdm-intro}.
+To better understand the problem it is vital to acquire some basic knowledge about how the SDM networks are built and what solutions are used there (e.g. in physical fiber links) \cite{sdm-intro}.
+Moreover, further information can be drawn from \cite{rssa2}.
 \\ \\
 With SDM networks comes the problem of routing space and spectrum allocation (RSSA) inside a network which can be solved by using many methods and algorithms. In \cite{wb-box} the solution about  switching node designs as a extended black box was mentioned. It stands with comparison to the concept of optical white box which is a more flexible and scalable alternative for such networks as SDM. However, black and white box solutions are related more to routing, modulation, spectrum and core allocation (RMSCA) than to RSSA but some concepts and parts of solutions might be applied as a RSSA solutions.
 \\
 In \cite{sdm-walko} as a solution for RSSA problem the greedy algorithm was proposed. The implementation of this algorithm in a given work is mostly used to analyse available path and spectral-spatial channel (SSCh - a concept of two dimensional structure that represents allocation both in space and spatial domain). In the results the algorithm chooses the most suitable path and channel based on current demand (request, programmable a single iteration within a loop).
 \\ \\
+According to greedy algorithm, two enhancements can be done in RSSA processing - algorithm parallelization and application of dedicated
+data structures\cite{rssa}.
+\\ \\
 To solve the optimization problem we use Python 3.7.1 \cite{python} programming language due to it's flexibility and huge amount of well developed mathematics and data structures packages. Python is also the language we know the most among the others so we can be sure solving the problem within it is going to go without solving side problems such as language syntax.
 \\ \\
 For more complex data structures we use Numpy \cite{numpy} which is a Python package. It provides structures like matrix, vector or more advanced dictionaries than Python itself. With this package also comes methods for that structures, like deleting, reshaping, transforming or transposing.
 \\ \\
-In a summary of this project we include some of data plots. To make it easy and simple we use Python side plots and datagrams provided by another package - matplotlib \cite{matplotlib}. Besides simple plots this package allows to comparing different data structures within one plot or just export generated plot into image format such as JPEG or PNG.
+In a summary of this project we include some of data plots. To make it easy and simple we use Python side plots and datagrams provided by another package - matplotlib \cite{matplotlib}. Besides simple plots this package allows comparison of different data structures within one plot or just export generated plot into image format such as JPEG or PNG.
 
 \begin{thebibliography}{00}
 
 \bibitem{sdm-walko} P. Lechowicz, K. Walkowiak, M. Klinkowski ``Selection of Spectral-Spatial Channels in SDM
 Flexgrid Optical Networks'', Department of Systems and Computer Networks, Wrocław University of Science and Technology, National Institute of Telecommunications, 1 Szachowa Street, 04-894 Warsaw, Poland, 2017
 
-\bibitem{shannon} A.D.Ellis ``The nonlinear Shannon limit and the need for new fibres'', Page 2-3, Tyndall National Institute \& Dept. of Physics, University College Cork, Dyke Parade, Cork, Ireland
+\bibitem{shannon} A.D. Ellis ``The nonlinear Shannon limit and the need for new fibres'', Page 2-3, Tyndall National Institute \& Dept. of Physics, University College Cork, Dyke Parade, Cork, Ireland
 
 \bibitem{flex-intro} D. Rafique, T. Rahman, A Napoli, M. Kuschnerov, G. Lehmann, B. Spinnler1 ``Flex-grid optical networks: spectrum allocation and nonlinear dynamics of super-channels'', Page 1-2, Coriant R\&D GmbH, St.-Martin-Str. 76, 81541, Munich, Germany, Eindhoven University of Technology, Eindhoven, Netherlands, 2013
 
@@ -68,11 +72,17 @@ Flexgrid Optical Networks'', Department of Systems and Computer Networks, Wrocł
 
 \bibitem{wb-box} A. Muhammad, G. Zervas, R. Forchheimer ``Resource Allocation for Space Division Multiplexing: Optical White Box vs. Optical Black Box Networking '', Page 2-3, Linköping University, Linköping, Sweden, High-Performance Networks Group, University of Bristol, UK
 
-\bibitem{python} Python Software Foundation ``Python 3.7.1 documentation'', access via Internet: \textit{https://docs.python.org/3/} from 16th November 2018.
+\bibitem{python} Python Software Foundation ``Python 3.7.1 documentation'', access via the Internet: \textit{https://docs.python.org/3/} from 16th November 2018.
 
-\bibitem{numpy} The Scipy community ``NumPy Reference'', June 10, 2017, acces via Internet \textit{https://docs.scipy.org/doc/numpy-1.13.0/reference/} from 16 November 2018
+\bibitem{numpy} The Scipy community ``NumPy Reference'', June 10, 2017, acces via the Internet \textit{https://docs.scipy.org/doc/numpy-1.13.0/reference/} from 16 November 2018
 
-\bibitem{matplotlib} J. Hunter, D. Dale, E. Firing, M. Droettboom ``Matplotlib Release 3.0.0'', September 21, 2018, access via Internet \textit{https://matplotlib.org/Matplotlib.pdf}
+\bibitem{matplotlib} J. Hunter, D. Dale, E. Firing, M. Droettboom ``Matplotlib Release 3.0.0'', September 21, 2018, access via the Internet \textit{https://matplotlib.org/Matplotlib.pdf}
+
+\bibitem{rssa} M. Klinkowski, G. Zalewski, K. Walkowiak ``Optimization of Spectrally and Spatially Flexible Optical Networks with Spatial Mode Conversion'', access via the Internet \textit{https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=\&arnumber=8396122}
+
+
+\bibitem{rssa2} D. Siracusa, F. Pederzolli, D. Klonidis, V. Lopez, E. Salvadori''Resource Allocation Policies in
+SDM Optical Networks'', access via the Internet \textit{https://ieeexplore.ieee.org/document/7127293}
 
 \end{thebibliography}
 \vspace{12pt}
