@@ -34,32 +34,43 @@ Wrocław, Poland \\
 \maketitle
 
 \section{Introduction}
-Space Division Multiplexing (SDM) optical networks solve the problem with insufficient capacity of bandwidth by redistributing the traffic (or to be more specific a part of it - \textit{slices}) over cores inside a fiber (Multicore fiber - MCF). Each core inside one fiber can also support different bit rate \cite{b1}.
+Flex-grid architecture use a time and wavelength division technology. It is used in networks commonly to increase transmitted capacity within a single-mode fiber (SMF) \cite{sdm-walko}. Using this solution encounters other problem due to non-linear Shannon limit which is related to maximum power which can be applied into an optical fibre (effects such as chromatic dispersion and non-linearity of the signal cause additional signal disortion)\cite{shannon}.
+\\
+Space Division Multiplexing (SDM) architecture used by optical networks solve the problem with insufficient capacity of bandwidth by redistributing the traffic (or to be more specific a part of it - \textit{slices}) over cores inside a multicore fiber (MCF). Each core inside one fiber can also support different bit rate \cite{flex-intro}.
 \\
 The hard part of using SDM with MCF is optimizing the traffic to allocate as much bandwidth in each core as possible without data loss or delays and to change the path when allocating cores within a current is impossible.
 \\
 This document describes a solution for such problem by implementing algorithms in a software (an application). 
 
 \section{Related works}
-To better understand the problem it is necessary to achieve some basic knowledge about how the SDM networks are built and what solution are used there (e.g. in physical fiber links)\cite{b2}.
+To better understand the problem it is necessary to achieve some basic knowledge about how the SDM networks are built and what solution are used there (e.g. in physical fiber links) \cite{sdm-intro}.
 \\ \\
-To solve the optimization problem we use Python 3.7.1\cite{b3} programming language due to it's flexibility and huge amounts of well developed mathematics and data structures packages. Python is also the language we know the most among the others so we can be sure solving the problem within it is going to go without solving side problems such as language syntax.
+With SDM networks comes the problem of routing space and spectrum allocation (RSSA) inside a network which can be solved by using many methods and algorithms. In \cite{wb-box} the solution about  switching node designs as a extended black box was mentioned. It stands with comparison to the concept of optical white box which is a more flexible and scalable alternative for such networks as SDM. However, black and white box solutions are related more to routing, modulation, spectrum and core allocation (RMSCA) than to RSSA.
 \\ \\
-For more complex data structures we use Numpy \cite {b4} which is a Python package. It provides structures like matrix, vector or more advanced dictionaries than Python itself. With this package also comes methods for that structures, like deleting, reshaping, transforming or transposing.
+To solve the optimization problem we use Python 3.7.1 \cite{python} programming language due to it's flexibility and huge amount of well developed mathematics and data structures packages. Python is also the language we know the most among the others so we can be sure solving the problem within it is going to go without solving side problems such as language syntax.
 \\ \\
-In a summary of this project we include some of data plots. To make it easy and simple we use Python side plots and datagrams provided by another package - matplotlib \cite{b5}. Besides simple plots this package allows to comparing different data structures within one plot or just export generated plot into image format such as JPEG or PNG.
+For more complex data structures we use Numpy \cite{numpy} which is a Python package. It provides structures like matrix, vector or more advanced dictionaries than Python itself. With this package also comes methods for that structures, like deleting, reshaping, transforming or transposing.
+\\ \\
+In a summary of this project we include some of data plots. To make it easy and simple we use Python side plots and datagrams provided by another package - matplotlib \cite{matplotlib}. Besides simple plots this package allows to comparing different data structures within one plot or just export generated plot into image format such as JPEG or PNG.
 
 \begin{thebibliography}{00}
 
-\bibitem{b1} D. Rafique, T. Rahman, A Napoli, M. Kuschnerov, G. Lehmann, B. Spinnler1 ``Flex-grid optical networks: spectrum allocation and nonlinear dynamics of super-channels'', Page 1-2, Coriant R\&D GmbH, St.-Martin-Str. 76, 81541, Munich, Germany, Eindhoven University of Technology, Eindhoven, Netherlands, 2013
+\bibitem{sdm-walko} P. Lechowicz, K. Walkowiak, M. Klinkowski ``Selection of Spectral-Spatial Channels in SDM
+Flexgrid Optical Networks'', Department of Systems and Computer Networks, Wrocław University of Science and Technology, National Institute of Telecommunications, 1 Szachowa Street, 04-894 Warsaw, Poland
 
-\bibitem{b2} A. Muhammad, G. Zervas, G. Saridis, E. H. Salas, D. Simeonidou, R. Forchheimer ``Flexible and Synthetic SDM Networks with Multi-core-Fibers Implemented by Programmable ROADMs'', Conference: ECOC 2014, At Cannes -France, September 2014
+\bibitem{shannon} A.D.Ellis ``The nonlinear Shannon limit and the need for new fibres'', Page 2-3, Tyndall National Institute \& Dept. of Physics, University College Cork, Dyke Parade, Cork, Ireland
 
-\bibitem{b3} Python Software Foundation ``Python 3.7.1 documentation'', access via Internet: \textit{https://docs.python.org/3/} from 16th November 2018.
+\bibitem{flex-intro} D. Rafique, T. Rahman, A Napoli, M. Kuschnerov, G. Lehmann, B. Spinnler1 ``Flex-grid optical networks: spectrum allocation and nonlinear dynamics of super-channels'', Page 1-2, Coriant R\&D GmbH, St.-Martin-Str. 76, 81541, Munich, Germany, Eindhoven University of Technology, Eindhoven, Netherlands, 2013
 
-\bibitem{b4} The Scipy community ``NumPy Reference'', June 10, 2017, acces via Internet \textit{https://docs.scipy.org/doc/numpy-1.13.0/reference/} from 16 November 2018
+\bibitem{sdm-intro} A. Muhammad, G. Zervas, G. Saridis, E. H. Salas, D. Simeonidou, R. Forchheimer ``Flexible and Synthetic SDM Networks with Multi-core-Fibers Implemented by Programmable ROADMs'', Conference: ECOC 2014, At Cannes -France, September 2014
 
-\bibitem{b5} J. Hunter, D. Dale, E. Firing, M. Droettboom ``Matplotlib Release 3.0.0'', September 21, 2018, access via Internet \textit{https://matplotlib.org/Matplotlib.pdf}
+\bibitem{wb-box} A. Muhammad, G. Zervas, R. Forchheimer ``Resource Allocation for Space Division Multiplexing: Optical White Box vs. Optical Black Box Networking '', Linköping University, Linköping, Sweden, High-Performance Networks Group, University of Bristol, UK
+
+\bibitem{python} Python Software Foundation ``Python 3.7.1 documentation'', access via Internet: \textit{https://docs.python.org/3/} from 16th November 2018.
+
+\bibitem{numpy} The Scipy community ``NumPy Reference'', June 10, 2017, acces via Internet \textit{https://docs.scipy.org/doc/numpy-1.13.0/reference/} from 16 November 2018
+
+\bibitem{matplotlib} J. Hunter, D. Dale, E. Firing, M. Droettboom ``Matplotlib Release 3.0.0'', September 21, 2018, access via Internet \textit{https://matplotlib.org/Matplotlib.pdf}
 
 \end{thebibliography}
 \vspace{12pt}
