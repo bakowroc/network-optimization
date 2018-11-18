@@ -46,6 +46,8 @@ This document describes a solution for such problem by implementing algorithms i
 To better understand the problem it is necessary to achieve some basic knowledge about how the SDM networks are built and what solution are used there (e.g. in physical fiber links) \cite{sdm-intro}.
 \\ \\
 With SDM networks comes the problem of routing space and spectrum allocation (RSSA) inside a network which can be solved by using many methods and algorithms. In \cite{wb-box} the solution about  switching node designs as a extended black box was mentioned. It stands with comparison to the concept of optical white box which is a more flexible and scalable alternative for such networks as SDM. However, black and white box solutions are related more to routing, modulation, spectrum and core allocation (RMSCA) than to RSSA but some concepts and parts of solutions might be applied as a RSSA solutions.
+\\
+In \cite{sdm-walko} as a solution for RSSA problem the greedy algorithm was proposed. The implementation of this algorithm in a given work is mostly used to analyse available path and spectral-spatial channel (SSCh - a concept of two dimensional structure that represents allocation both in space and spatial domain). In the results the algorithm chooses the most suitable path and channel based on current demand (request, programmable a single iteration within a loop).
 \\ \\
 To solve the optimization problem we use Python 3.7.1 \cite{python} programming language due to it's flexibility and huge amount of well developed mathematics and data structures packages. Python is also the language we know the most among the others so we can be sure solving the problem within it is going to go without solving side problems such as language syntax.
 \\ \\
@@ -56,7 +58,7 @@ In a summary of this project we include some of data plots. To make it easy and 
 \begin{thebibliography}{00}
 
 \bibitem{sdm-walko} P. Lechowicz, K. Walkowiak, M. Klinkowski ``Selection of Spectral-Spatial Channels in SDM
-Flexgrid Optical Networks'', Department of Systems and Computer Networks, Wrocław University of Science and Technology, National Institute of Telecommunications, 1 Szachowa Street, 04-894 Warsaw, Poland
+Flexgrid Optical Networks'', Department of Systems and Computer Networks, Wrocław University of Science and Technology, National Institute of Telecommunications, 1 Szachowa Street, 04-894 Warsaw, Poland, 2017
 
 \bibitem{shannon} A.D.Ellis ``The nonlinear Shannon limit and the need for new fibres'', Page 2-3, Tyndall National Institute \& Dept. of Physics, University College Cork, Dyke Parade, Cork, Ireland
 
