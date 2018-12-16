@@ -4,7 +4,7 @@ from Core.Core import Core
 from Node import Node
 
 
-NUMBER_OF_CORES = 5
+NUMBER_OF_CORES = 3
 
 class Link:
     def __init__(self, start: Node, end: Node):

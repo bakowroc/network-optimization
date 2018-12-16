@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 ## Consts
-TOTAL_DURATION = 320
+TOTAL_DURATION = 300
 PROCEED = True
 
 if PROCEED:
@@ -63,7 +63,10 @@ def show_chart(link: Link):
 
     plt.legend(legend)
     plt.title("Link {}".format(link.id))
+    plt.xlabel('Iterations')
+    plt.ylabel('Slices taken')
     plt.show(block=True)
+
 
 def get_path(source: Node, destination: Node):
     return paths[source.name + destination.name]

@@ -4,6 +4,7 @@
 \usepackage[british,UKenglish,USenglish,english,american]{babel}
 
 \usepackage{cite}
+\usepackage{float}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
 \usepackage{graphicx}
@@ -67,6 +68,44 @@ In a summary of this project we include some of data plots. To make it easy and 
 The optimization objective is minimizing demand/bitrate blocking probability. 
 \\
 
+\section{Solution algorithm}
+Suggested algorithm consists of a few components which are equivalents for real parts in SDM network topology. Respectively:
+\begin{itemize}
+\item \textbf{Node} - represents physical node within network topology, described by given name.
+\item \textbf{Link} - represents connection between pair of nodes and is a part of given paths required for each demand. Described as start and end point (both are node objects). Each link consists of known number of cores. Link objects is programmed to take care of channel allocation for cores within it for demnads.
+\item \textbf{Core} - represents physical core inside a link (fiber). Described by name (a link id) and iterated id. Each core contains a matrix (1x320) which represents slices and their indexes; 1 for taken index 0 for free. Each core objects checks if can be allocated by given demand slices and based on the result allocate or not space for them. When it's requested core object unallocates space (e.g. when demand is finished).
+\item \textbf{Path} - simplified structure containing a key, which is a value combined from source and the destination and a list of links which are continuously connected by nodes (in other words, those links create a valid \textbf{route}).
+\item \textbf{Demand} - a physical demand (request). Described as unique id, start (a number of iteration which demand needs to be sent in), the source and destination (both are node objects), bitrate (in Gbps), duration (a number of iterations) and slices (equivalent of real data slices).
+\end{itemize}
+Algorithm follows four principles:
+\begin{itemize}
+\item spectrum contiguity - all demand slices has to be in the same fiber core (cannot be slitted between cores in the same fiber)
+\item spectrum continuity - demand has to use same fiber core and the same indexes range within links in the demand path
+\item spectrum non-overlapping - a slice in a core cannot be shared between different demand slices
+\item guard-band between neighbouring connections - each slices sequence in core has to have additional one slice taken as a guard-band to prevent crosstalk between connections (demands)
+\end{itemize}
+
+Basically algorithm is a loop over a given number of iteration (2000). At the beginning of each iteration given list of demands are filtered. This process is needed to skip those demands which do not require to be considered in the iteration. Basically filtering process split demands into two structures - demands which are going to be finished in the iteration and those which are going to start (includes those which were postponed due to insufficient resources - not enough free space in the previous iterations). Firstly a space should be unallocated, so before starting new demands those which are going to be finished are served. It prevents demands from being unnecessary postponing - less delays.
+\subsection{Unallocating space for demand}
+When demand requires to be finish a slices related to links in this demand path is being unallocated.
+Additionally, unallocation process is started each time a required core has been changed. It's needed because algorithm does not save information about available cores or cores already checked. It allocates space when core is available so space has to be freed each time selected cores are being shuffled (explained in section B).
+\subsection{Allocating space for new demand}
+Based on each demand source and destination a path is selected (from given ones) and then for each link in the path a core is being selected.
+\\ \\
+Due to spectrum continuity principle demand requires same core being used in each link in the path. Selecting core for each link can be explained in a few steps:
+\begin{enumerate}
+\item For the first link, if no core has been considered yet first available (with enough free slices) is selected and saved as required to be used in the next links
+\item For each next link is needed to select same core (with same id) and then the next link is being considered. If required core cannot be selected or some index of allocated slices is already taken a next available core is selected.
+\item Due to required core change all previously links have to be recalculated (a change of selected core) as mentioned in step 2
+\item If cores in all links was successfully selected a demand is processing (for given number of iterations - duration). If at some point core/s could have not been selected a demand is going to be postponed (is waiting) and will be reconsidering each further iteration. An information about delay (a number of iterations) is given when demands will start successfully.
+\end{enumerate}
+An example core allocation can be seen in Fig.1
+\\ \\ \\
+\begin{figure}[H]
+\includegraphics[width=\linewidth]{plot_link.png}
+\\
+\textbf{Fig. 1} \textit{An example fiber cores allocation for 4 demands}
+\end{figure}
 \begin{thebibliography}{00}
 
 \bibitem{sdm-walko} P. Lechowicz, K. Walkowiak, M. Klinkowski ``Selection of Spectral-Spatial Channels in SDM
