@@ -34,6 +34,14 @@ Wrocław, Poland \\
 
 \maketitle
 
+\begin{abstract}
+This document is about the SDM networks optimization problem. It describes our authorial implementation of optimization algorithm. 
+\end{abstract}
+
+\begin{IEEEkeywords}
+flex-grid, RSSA, SDM, optimization, algorithms, SMF, optical fibre
+\end{IEEEkeywords}
+
 \section{Introduction}
 Flex-grid architecture uses a space division technology. As it is going beyond the capabilities of WDM/EON systems, most likely it will be commonly used in networks to increase transmitted capacity within a single-mode fiber (SMF) \cite{sdm-walko}. Using this solution encounters other problem due to non-linear Shannon limit which is related to maximum power which can be applied into an optical fibre (effects such as chromatic dispersion and non-linearity of the signal cause additional signal disortion)\cite{shannon}.
 \\
@@ -56,18 +64,10 @@ According to greedy algorithm, two enhancements can be done in RSSA processing -
 data structures\cite{rssa}.
 \
 
-\section{Tools used}
-To solve the optimization problem we use Python 3.7.1 \cite{python} programming language due to it's flexibility, ease of use and huge amount of well developed mathematics and data structures packages. Python is also the language we know the most among the others so we can be sure solving the problem within it is going to go without solving side problems such as language syntax.
-\\ \\
-For more complex data structures we use Numpy \cite{numpy} which is a Python package. It provides structures like matrix, vector or more advanced dictionaries than Python itself. With this package also comes methods for that structures, like deleting, reshaping, transforming or transposing.
-\\ \\
-In a summary of this project we include some of data plots. To make it easy and simple we use Python side plots and datagrams provided by another package - matplotlib \cite{matplotlib}. Besides simple plots this package allows comparison of different data structures within one plot or just export generated plot into image format such as JPEG or PNG.
-\\
-
 \section{Problem definition}
 The optimization objective is minimizing demand/bitrate blocking probability. The network, being defined by a set of nodes and physical links implements SDM technology, thus on each physical link there is a given set of fiber cores. Each core consists of 320 segments, i.e. slices, and each slice is 12.5 GHz wide. Channel can be created by grouping particular number of adjacent slices, then it is characterized by first slice's index, number of involved slices and index of applied fiber core.
 \\ \\
-In this case, routing path has to be a sequence of network links, where the source node is connected with the destination node. Routing path has to be established before data can be sent between path ends (pair of nodes). When the path is established, spectrum resources have to be selected and allocated. the light-path is a connection of routing path with a channel allocated on the path links. It is required in order to realize a demand in an optical network, and, when established, has to connect demand end nodes wherein the channel size is a function of:
+In this case, routing path has to be a sequence of network links, where the source node is connected with the destination node. Routing path has to be established before data can be sent between path ends (pair of nodes). When the path is established, spectrum resources have to be selected and allocated, the light-path is a connection of routing path with a channel allocated on the path links. It is required in order to realize a demand in an optical network, and, when established, has to connect demand end nodes wherein the channel size is a function of:
 \begin{itemize}
 \item demand volume in Gbps
 \item path length in kilometers
@@ -113,8 +113,8 @@ Algorithm follows four principles:
 
 Basically algorithm is a loop over a given number of iterations (2000). At the beginning of each iteration given list of demands is filtered. This process is needed to skip those demands which do not require to be considered in the iteration. Basically filtering process split demands into two structures - demands which are going to be finished in the iteration and those which are going to start (includes those which were postponed due to insufficient resources - not enough free space in the previous iterations). Firstly a space should be unallocated, so before starting new demands those which are going to be finished are served. It prevents demands from being unnecessary postponing - less delays.
 \subsection{Unallocating space for demand}
-When demand requires to be finish a slices related to links in this demand path is being unallocated.
-Additionally, unallocation process is started each time a required core has been changed. It's needed because algorithm does not save information about available cores or cores already checked. It allocates space when core is available so space has to be freed each time selected cores are being shuffled (explained in section B).
+When demand requires to be finished, slices related to links in this demand path are being unallocated.
+Additionally, unallocation process is started each time a required core has been changed. It is needed because algorithm does not save information about available cores or cores already checked. It allocates space when core is available so space has to be freed each time selected cores are being shuffled (explained in section B).
 \subsection{Allocating space for new demand}
 Based on each demand source and destination a path is selected (from given ones) and then for each link in the path a core is being selected.
 \\ \\
@@ -132,6 +132,15 @@ An example core allocation can be seen in Fig.1
 \\
 \textbf{Fig. 1} \textit{An example fiber cores allocation for 4 demands}
 \end{figure}
+
+\section{Tools used}
+To solve the optimization problem we use Python 3.7.1 \cite{python} programming language due to it's flexibility, ease of use and huge amount of well developed mathematics and data structures packages. Python is also the language we know the most among the others so we can be sure solving the problem within it is going to go without solving side problems such as language syntax.
+\\ \\
+For more complex data structures we use Numpy \cite{numpy} which is a Python package. It provides structures like matrix, vector or more advanced dictionaries than Python itself. With this package also comes methods for that structures, like deleting, reshaping, transforming or transposing.
+\\ \\
+In a summary of this project we include some of data plots. To make it easy and simple we use Python side plots and datagrams provided by another package - matplotlib \cite{matplotlib}. Besides simple plots this package allows comparison of different data structures within one plot or just export generated plot into image format such as JPEG or PNG.
+\\
+
 \begin{thebibliography}{00}
 
 \bibitem{sdm-walko} P. Lechowicz, K. Walkowiak, M. Klinkowski ``Selection of Spectral-Spatial Channels in SDM
