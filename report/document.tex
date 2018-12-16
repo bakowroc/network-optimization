@@ -45,7 +45,7 @@ This document describes a solution for such problem by implementing algorithms i
 \\
 
 \section{Related works}
-To better understand the problem it is vital to acquire some basic knowledge about how the SDM networks are built and what solutions are used there (e.g. in physical fiber links) \cite{sdm-intro}.
+Our optimization problem definition's backbone is \cite{roza}. To better understand the problem it is vital to acquire some basic knowledge about how the SDM networks are built and what solutions are used there (e.g. in physical fiber links) \cite{sdm-intro}.
 Moreover, further information can be drawn from \cite{rssa2} \cite{walkoartykul}.
 \\ \\
 With SDM networks comes the problem of routing space and spectrum allocation (RSSA) inside a network which can be solved by using many methods and algorithms. In \cite{wb-box} the solution about  switching node designs as a extended black box was mentioned. It stands with comparison to the concept of optical white box which is a more flexible and scalable alternative for such networks as SDM. However, black and white box solutions are related more to routing, modulation, spectrum and core allocation (RMSCA) than to RSSA but some concepts and parts of solutions might be applied as a RSSA solutions.
@@ -65,29 +65,42 @@ In a summary of this project we include some of data plots. To make it easy and 
 \\
 
 \section{Problem definition}
-The optimization objective is minimizing demand/bitrate blocking probability. The network, being defined by a set of nodes and physical links implements SDM technology, thus on each physical link there is a given set of fiber cores. Each core consists of 320 segments, i.e. slices, and each slice is 12.5 GHz wide. Channel can be created by grouping particular number of adjacent slices, then it is characterized by firt slice's index, number of involved slices and index of applied fiber core.
+The optimization objective is minimizing demand/bitrate blocking probability. The network, being defined by a set of nodes and physical links implements SDM technology, thus on each physical link there is a given set of fiber cores. Each core consists of 320 segments, i.e. slices, and each slice is 12.5 GHz wide. Channel can be created by grouping particular number of adjacent slices, then it is characterized by first slice's index, number of involved slices and index of applied fiber core.
 \\ \\
-Optimization can be performed 
-\\
+In this case, routing path has to be a sequence of network links, where the source node is connected with the destination node. Routing path has to be established before data can be sent between path ends (pair of nodes). When the path is established, spectrum resources have to be selected and allocated. the light-path is a connection of routing path with a channel allocated on the path links. It is required in order to realize a demand in an optical network, and, when established, has to connect demand end nodes wherein the channel size is a function of:
+\begin{itemize}
+\item demand volume in Gbps
+\item path length in kilometers
+\item modulation format
+\end{itemize}
+The optimization algorithm has to follow four constraints:
+\begin{itemize}
+\item spectrum contiguity
+\item spectrum continuity
+\item spectrum non-overlapping
+\item guard-band between neighbouring connections
+\end{itemize}
+These constraints will be further discussed in upcoming section.
+
 
 \section{Solution algorithm}
 Suggested algorithm consists of a few components which are equivalents for real parts in SDM network topology. Respectively:
 \begin{itemize}
 \item \textbf{Node} - represents physical node within network topology, described by given name.
-\item \textbf{Link} - represents connection between pair of nodes and is a part of given paths required for each demand. Described as start and end point (both are node objects). Each link consists of known number of cores. Link objects is programmed to take care of channel allocation for cores within it for demnads.
-\item \textbf{Core} - represents physical core inside a link (fiber). Described by name (a link id) and iterated id. Each core contains a matrix (1x320) which represents slices and their indexes; 1 for taken index 0 for free. Each core objects checks if can be allocated by given demand slices and based on the result allocate or not space for them. When it's requested core object unallocates space (e.g. when demand is finished).
-\item \textbf{Path} - simplified structure containing a key, which is a value combined from source and the destination and a list of links which are continuously connected by nodes (in other words, those links create a valid \textbf{route}).
+\item \textbf{Link} - represents connection between pair of nodes and is a part of given paths required for each demand. Described as start and end point (both are node objects). Each link consists of known number of cores. Link objects are programmed to take care of channel allocation for cores within it for demands.
+\item \textbf{Core} - represents physical core inside a link (fiber). Described by name (a link id) and iterated id. Each core contains a matrix (1x320) which represents slices and their indexes; 1 for taken index 0 for free. Each of the core objects checks if it can be allocated by given demand slices and based on the result whether to allocate or not space for them. When it's requested core object unallocates space (e.g. when demand is finished).
+\item \textbf{Path} - simplified structure containing a key, which is a value combined from source and the destination and a list of links which are continuously connected by nodes (i.e. those links create a valid \textbf{route}).
 \item \textbf{Demand} - a physical demand (request). Described as unique id, start (a number of iteration which demand needs to be sent in), the source and destination (both are node objects), bitrate (in Gbps), duration (a number of iterations) and slices (equivalent of real data slices).
 \end{itemize}
 Algorithm follows four principles:
 \begin{itemize}
-\item spectrum contiguity - all demand slices has to be in the same fiber core (cannot be slitted between cores in the same fiber)
-\item spectrum continuity - demand has to use same fiber core and the same indexes range within links in the demand path
+\item spectrum contiguity - all demand slices have to be in the same fiber core (cannot be slitted between cores in the same fiber)
+\item spectrum continuity - demand has to use the same fiber core and the same indexes range within links in the demand path
 \item spectrum non-overlapping - a slice in a core cannot be shared between different demand slices
 \item guard-band between neighbouring connections - each slices sequence in core has to have additional one slice taken as a guard-band to prevent crosstalk between connections (demands)
 \end{itemize}
 
-Basically algorithm is a loop over a given number of iteration (2000). At the beginning of each iteration given list of demands are filtered. This process is needed to skip those demands which do not require to be considered in the iteration. Basically filtering process split demands into two structures - demands which are going to be finished in the iteration and those which are going to start (includes those which were postponed due to insufficient resources - not enough free space in the previous iterations). Firstly a space should be unallocated, so before starting new demands those which are going to be finished are served. It prevents demands from being unnecessary postponing - less delays.
+Basically algorithm is a loop over a given number of iterations (2000). At the beginning of each iteration given list of demands is filtered. This process is needed to skip those demands which do not require to be considered in the iteration. Basically filtering process split demands into two structures - demands which are going to be finished in the iteration and those which are going to start (includes those which were postponed due to insufficient resources - not enough free space in the previous iterations). Firstly a space should be unallocated, so before starting new demands those which are going to be finished are served. It prevents demands from being unnecessary postponing - less delays.
 \subsection{Unallocating space for demand}
 When demand requires to be finish a slices related to links in this demand path is being unallocated.
 Additionally, unallocation process is started each time a required core has been changed. It's needed because algorithm does not save information about available cores or cores already checked. It allocates space when core is available so space has to be freed each time selected cores are being shuffled (explained in section B).
@@ -116,6 +129,8 @@ Flexgrid Optical Networks'', Department of Systems and Computer Networks, Wrocł
 \bibitem{shannon} A.D. Ellis ``The nonlinear Shannon limit and the need for new fibres'', Page 2-3, Tyndall National Institute \& Dept. of Physics, University College Cork, Dyke Parade, Cork, Ireland
 
 \bibitem{flex-intro} D. Rafique, T. Rahman, A Napoli, M. Kuschnerov, G. Lehmann, B. Spinnler ``Flex-grid optical networks: spectrum allocation and nonlinear dynamics of super-channels'', Page 1-2, Coriant R\&D GmbH, St.-Martin-Str. 76, 81541, Munich, Germany, Eindhoven University of Technology, Eindhoven, Netherlands, 2013
+
+\bibitem{roza} R. Goścień ``Dynamic routing, space and spectrum allocation (RSSA) of unicast demands in flex-grid network'', Wroclaw University of Science and Technology, Wroclaw, Poland
 
 \bibitem{sdm-intro} A. Muhammad, G. Zervas, G. Saridis, E. H. Salas, D. Simeonidou, R. Forchheimer ``Flexible and Synthetic SDM Networks with Multi-core-Fibers Implemented by Programmable ROADMs'', Conference: ECOC 2014, At Cannes -France, September 2014
 
