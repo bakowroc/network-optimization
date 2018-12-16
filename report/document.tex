@@ -45,8 +45,8 @@ This document describes a solution for such problem by implementing algorithms i
 \\
 
 \section{Related works}
-Our optimization problem definition's backbone is \cite{roza}. To better understand the problem it is vital to acquire some basic knowledge about how the SDM networks are built and what solutions are used there (e.g. in physical fiber links) \cite{sdm-intro}.
-Moreover, further information can be drawn from \cite{rssa2} \cite{walkoartykul}.
+Our optimization problem definition's backbone is \cite{roza} and \cite{differential}. To better understand the problem it is vital to acquire some basic knowledge about how the SDM networks are built and what solutions are used there (e.g. in physical fiber links) \cite{sdm-intro}.
+Moreover, further information can be drawn from \cite{rssa2} and \cite{walkoartykul}.
 \\ \\
 With SDM networks comes the problem of routing space and spectrum allocation (RSSA) inside a network which can be solved by using many methods and algorithms. In \cite{wb-box} the solution about  switching node designs as a extended black box was mentioned. It stands with comparison to the concept of optical white box which is a more flexible and scalable alternative for such networks as SDM. However, black and white box solutions are related more to routing, modulation, spectrum and core allocation (RMSCA) than to RSSA but some concepts and parts of solutions might be applied as a RSSA solutions.
 \\
@@ -81,7 +81,18 @@ The optimization algorithm has to follow four constraints:
 \item guard-band between neighbouring connections
 \end{itemize}
 These constraints will be further discussed in upcoming section.
-
+\\
+The major goal of this algorithm is to reduce the amount of used slices in total, and be the most spectrum-effective, so in other words we want to allocate as much demands as it is possible. Each of the demands is described by:
+\begin{itemize}
+\item sourde node
+\item destination node
+\item bitrate (Gbps)
+\item duration (iterations)
+\end{itemize}
+Iterations will be set to the value of 2000. Dynamic scenario is considered - demands arrival process observed within a specified time period.
+We assume that demands arrival rate will follow Poisson process, while their duration follows exponential process.
+\\ \\
+In the considered problem - dynamic RSSA - we focus on existing network in its operational state. We simulate its work considering a particular time period (iterations in this case). In each iteration, a number of demands is incoming and a number of existing demands is expiring. The new incoming demands need to be, if possible, assigned with a light-path, with respect to the current resource availability, while the expiring demands need to release assigned resources. It is possible that for a particular network state (i.e., resource availability), there is no possibility to allocate a demand (due to lack of enough free slices). Then, that demand is rejected (remains unallocated). Please note that in each iteration it is necessary to keep information about existing demands (and control the time of their existence in the network) as well as allocated/free resources (slices on links and cores). Moreover, at the end of each iteration it is necessary to release (free) resources allocated for demands, whose duration currently ends. The released resources can be used in next iterations by other demands.
 
 \section{Solution algorithm}
 Suggested algorithm consists of a few components which are equivalents for real parts in SDM network topology. Respectively:
@@ -131,6 +142,10 @@ Flexgrid Optical Networks'', Department of Systems and Computer Networks, Wrocł
 \bibitem{flex-intro} D. Rafique, T. Rahman, A Napoli, M. Kuschnerov, G. Lehmann, B. Spinnler ``Flex-grid optical networks: spectrum allocation and nonlinear dynamics of super-channels'', Page 1-2, Coriant R\&D GmbH, St.-Martin-Str. 76, 81541, Munich, Germany, Eindhoven University of Technology, Eindhoven, Netherlands, 2013
 
 \bibitem{roza} R. Goścień ``Dynamic routing, space and spectrum allocation (RSSA) of unicast demands in flex-grid network'', Wroclaw University of Science and Technology, Wroclaw, Poland
+
+\bibitem{differential} F. Lezama, G. Castanon, A. M. Sarmiento, I. B. Martins, ``Routing and Spectrum Allocation in Flexgrid Optical Networks
+Using Differential Evolution Optimization'', Department of Electrical and Computer Engineering, 2Department of Industrial Engineering,
+Tecnológico de Monterrey, Ave. Eugenio Garza Sada \#2501 Sur, Monterrey NL, 64849, México
 
 \bibitem{sdm-intro} A. Muhammad, G. Zervas, G. Saridis, E. H. Salas, D. Simeonidou, R. Forchheimer ``Flexible and Synthetic SDM Networks with Multi-core-Fibers Implemented by Programmable ROADMs'', Conference: ECOC 2014, At Cannes -France, September 2014
 
