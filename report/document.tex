@@ -34,18 +34,18 @@ Wrocław, Poland \\
 \maketitle
 
 \section{Introduction}
-Flex-grid architecture uses a time and wavelength division technology. It, most probably, will be commonly used in networks to increase transmitted capacity within a single-mode fiber (SMF) \cite{sdm-walko}. Using this solution encounters other problem due to non-linear Shannon limit which is related to maximum power which can be applied into an optical fibre (effects such as chromatic dispersion and non-linearity of the signal cause additional signal disortion)\cite{shannon}.
+Flex-grid architecture uses a space division technology. As it is going beyond the capabilities of WDM/EON systems, most likely it will be commonly used in networks to increase transmitted capacity within a single-mode fiber (SMF) \cite{sdm-walko}. Using this solution encounters other problem due to non-linear Shannon limit which is related to maximum power which can be applied into an optical fibre (effects such as chromatic dispersion and non-linearity of the signal cause additional signal disortion)\cite{shannon}.
 \\
 Space Division Multiplexing (SDM) architecture used by optical networks solve the problem with insufficient capacity of bandwidth by redistributing the traffic (or to be more specific a part of it - \textit{slices}) over cores inside a multicore fiber (MCF). Each core inside one fiber can also support different bit rate \cite{flex-intro}.
 \\
 The hard part of using SDM with MCF is optimizing the traffic to allocate as much bandwidth in each core as possible without data loss or delays and to change the path when allocating cores within a current is impossible.
 \\
-This document describes a solution for such problem by implementing algorithms in a software (an application). 
+This document describes a solution for such problem by implementing algorithms in a software (an application).
 \\
 
 \section{Related works}
 To better understand the problem it is vital to acquire some basic knowledge about how the SDM networks are built and what solutions are used there (e.g. in physical fiber links) \cite{sdm-intro}.
-Moreover, further information can be drawn from \cite{rssa2}.
+Moreover, further information can be drawn from \cite{rssa2} \cite{walkoartykul}.
 \\ \\
 With SDM networks comes the problem of routing space and spectrum allocation (RSSA) inside a network which can be solved by using many methods and algorithms. In \cite{wb-box} the solution about  switching node designs as a extended black box was mentioned. It stands with comparison to the concept of optical white box which is a more flexible and scalable alternative for such networks as SDM. However, black and white box solutions are related more to routing, modulation, spectrum and core allocation (RMSCA) than to RSSA but some concepts and parts of solutions might be applied as a RSSA solutions.
 \\
@@ -53,7 +53,7 @@ In \cite{sdm-walko} as a solution for RSSA problem the greedy algorithm was prop
 \\ \\
 According to greedy algorithm, two enhancements can be done in RSSA processing - algorithm parallelization and application of dedicated
 data structures\cite{rssa}.
-\\
+\
 
 \section{Tools used}
 To solve the optimization problem we use Python 3.7.1 \cite{python} programming language due to it's flexibility, ease of use and huge amount of well developed mathematics and data structures packages. Python is also the language we know the most among the others so we can be sure solving the problem within it is going to go without solving side problems such as language syntax.
@@ -64,7 +64,9 @@ In a summary of this project we include some of data plots. To make it easy and 
 \\
 
 \section{Problem definition}
-The optimization objective is minimizing demand/bitrate blocking probability. 
+The optimization objective is minimizing demand/bitrate blocking probability. The network, being defined by a set of nodes and physical links implements SDM technology, thus on each physical link there is a given set of fiber cores. Each core consists of 320 segments, i.e. slices, and each slice is 12.5 GHz wide. Channel can be created by grouping particular number of adjacent slices, then it is characterized by firt slice's index, number of involved slices and index of applied fiber core.
+\\ \\
+Optimization can be performed 
 \\
 
 \begin{thebibliography}{00}
@@ -74,12 +76,14 @@ Flexgrid Optical Networks'', Department of Systems and Computer Networks, Wrocł
 
 \bibitem{shannon} A.D. Ellis ``The nonlinear Shannon limit and the need for new fibres'', Page 2-3, Tyndall National Institute \& Dept. of Physics, University College Cork, Dyke Parade, Cork, Ireland
 
-\bibitem{flex-intro} D. Rafique, T. Rahman, A Napoli, M. Kuschnerov, G. Lehmann, B. Spinnler1 ``Flex-grid optical networks: spectrum allocation and nonlinear dynamics of super-channels'', Page 1-2, Coriant R\&D GmbH, St.-Martin-Str. 76, 81541, Munich, Germany, Eindhoven University of Technology, Eindhoven, Netherlands, 2013
+\bibitem{flex-intro} D. Rafique, T. Rahman, A Napoli, M. Kuschnerov, G. Lehmann, B. Spinnler ``Flex-grid optical networks: spectrum allocation and nonlinear dynamics of super-channels'', Page 1-2, Coriant R\&D GmbH, St.-Martin-Str. 76, 81541, Munich, Germany, Eindhoven University of Technology, Eindhoven, Netherlands, 2013
 
 \bibitem{sdm-intro} A. Muhammad, G. Zervas, G. Saridis, E. H. Salas, D. Simeonidou, R. Forchheimer ``Flexible and Synthetic SDM Networks with Multi-core-Fibers Implemented by Programmable ROADMs'', Conference: ECOC 2014, At Cannes -France, September 2014
 
-\bibitem{rssa2} D. Siracusa, F. Pederzolli, D. Klonidis, V. Lopez, E. Salvadori''Resource Allocation Policies in
+\bibitem{rssa2} D. Siracusa, F. Pederzolli, D. Klonidis, V. Lopez, E. Salvadori ''Resource Allocation Policies in
 SDM Optical Networks'',  in Proc. of ONDM, Pisa, Italy, May 2015, pp. 168–173.
+
+\bibitem{walkoartykul} M. Klinkowski, P. Lechowicz, K. Walkowiak ``Survey of Resource Allocation Schemes and Algorithms in Spectrally-Spatially Flexible Optical Networking'', National Institute of Telecommunications, 1 Szachowa Street, 04-894 Warsaw, Department of Systems and Computer Networks, Wrocław University of Science and Technology, Poland, September 2017
 
 \bibitem{wb-box} A. Muhammad, G. Zervas, R. Forchheimer ``Resource Allocation for Space Division Multiplexing: Optical White Box vs. Optical Black Box Networking '', Page 2-3, Linköping University, Linköping, Sweden, High-Performance Networks Group, University of Bristol, UK
 
