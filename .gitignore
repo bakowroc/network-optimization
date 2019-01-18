@@ -2,6 +2,7 @@
 .idea/
 venv
 data
+entry
 
 ## Core latex/pdflatex auxiliary files:
 *.aux

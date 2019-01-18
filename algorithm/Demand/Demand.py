@@ -1,95 +1,116 @@
-from Link import Link
+from Logger.Logger import Logger
 from Node import Node
+from Path import Path
 
 
 class Demand:
-    def __init__(self, id, started_at, source: Node, destination: Node, bitrate, duration, slices):
+    def __init__(self, id, started_at, source: Node, destination: Node, bitrate, duration):
         self.id = id
         self.started_at = started_at
-        self.should_started_at = started_at
         self.source = source
         self.destination = destination
         self.bitrate = bitrate
         self.duration = duration
-        self.slices = slices
+        self.slices = 0
         self.path = None
 
-        self.allocated_links = []
-        self.allocated_cores = []
-        self.required_core = None
-        self.cores_tried = []
-        self.is_waiting = False
+        self.required_core_id = None
+        self.required_start_index = None
+        self.already_checked_indexes = []
+        self.already_checked_cores = []
+
         self.is_success = False
 
-    def allocate_or_else(self, current_iteration, path):
-        if self.is_waiting:
-            result= self.allocate_resources(path)
-            if result:
-                self.write_result(current_iteration)
-                self.started_at = current_iteration
-                print("[Demand {}]>> Started with delay {}".format(self.id, self.started_at - self.should_started_at))
-                self.is_waiting = False
-            else:
-                self.wait()
+    def calculate_slices(self):
+        self.slices = self.path.get_number_of_slices(self.bitrate)
 
-        elif current_iteration == self.started_at:
-            result = self.allocate_resources(path)
-            if not result:
-                self.wait()
-            elif result:
-                print("[Demand {}]>> Started normally".format(self.id))
-                self.write_result(current_iteration)
+    def mark_as_failed(self):
+        self.is_success = False
+        self.write_csv()
 
-        elif current_iteration == self.started_at + self.duration:
-            print("\n[Demand {}]>> Finished".format(self.id))
-            self.unallocate_resources()
-            self.write_result(current_iteration)
-            self.is_success = True
-        else:
-            self.write_result(current_iteration)
-
-
-    def wait(self):
-        print("[Demand {}]>> No resources available. Cleaning already allocated and waiting...".format(self.id))
-        self.is_waiting = True
-        self.unallocate_resources()
-
-    def allocate_resources(self, path: [Link]):
+    def check_and_allocate(self, current_iteration, path: Path):
         self.path = path
-        print("\n[Demand {}]>> Allocating resources".format(self.id))
-        for link in self.path:
-            result, core = link.allocate_channel(self.id, self.slices, self.required_core)
-            self.allocated_links.append(link.id)
-            self.allocated_cores.append(core)
+        self.calculate_slices()
+
+        if current_iteration == self.started_at:
+            result = self.check_resources()
             if not result:
-                return result
-            elif self.required_core != core.id and self.required_core is not None:
-                print("[Demand {}]>> Required core has changed".format(self.id))
-                self.required_core = core.id
-                self.unallocate_resources()
-                result = self.allocate_resources(self.path)
-                if result:
-                    return result
-            else:
-                self.required_core = core.id
+                return False
+
+            self.allocate_resources()
+            self.is_success = True
+        elif current_iteration == self.started_at + self.duration:
+            self.write_csv()
+            self.unallocate_resources()
 
         return True
 
+    def check_resources(self) -> bool:
+        checked_links = 0
+
+        for link in self.path.links:
+            result, start_index, core = link.check_channel_availability(
+                self.slices,
+                self.required_core_id,
+                self.required_start_index,
+                self.already_checked_indexes,
+                self.already_checked_cores,
+            )
+
+            if not result:
+                return False
+
+            if self.required_core_id is None:
+                self.required_core_id = core.id
+            elif self.required_core_id != core.id:
+                self.already_checked_indexes = []
+                self.already_checked_cores.append(core)
+                self.required_core_id = core.id
+                break
+
+            if self.required_start_index is None:
+                self.required_start_index = start_index
+            elif self.required_start_index != start_index:
+                self.already_checked_indexes.append(self.required_start_index)
+                self.required_start_index = start_index
+                break
+
+            checked_links = checked_links + 1
+
+        if checked_links != len(self.path.links):
+            self.check_resources()
+
+        return True
+
+    def allocate_resources(self):
+        for link in self.path.links:
+            link.allocate_channel(self)
+
     def unallocate_resources(self):
-        print("\n[Demand {}]>> Unallocating resources".format(self.id))
-        for link in self.path:
-            if link.id in self.allocated_links:
-                link.unallocate_channel(self.id, self.slices, self.allocated_cores)
+        for link in self.path.links:
+            link.unallocate_channel(self)
 
-        self.allocated_links = []
-        self.allocated_cores = []
+    def write_csv(self):
+        filename = "./demands_summary.csv"
+        if self.path:
+            link_in_path = list(map(lambda link: link.id, self.path.links))
+            path_length = self.path.get_length() or [],
+        else:
+            link_in_path = None
+            path_length = None
 
-    def write_result(self, iteration):
-        for link in self.path:
-            for core in link.cores:
-                filename = "./data/{}/{}_{}_results.csv".format(link.id, link.id, core.id)
-                _, taken_slices = core.get_slices_numbers()
-                with open(filename, "a") as file:
-                    file.write('{},{} \n'.format(iteration, taken_slices))
-                    file.close()
-
+        with open(filename, "a") as file:
+            file.write('{}; {}; {}; {}; {}; {}; {}; {}; {}; {}; {}\n'.format(
+                self.id,
+                self.started_at,
+                self.source.id,
+                self.destination.id,
+                self.bitrate,
+                self.duration,
+                self.is_success,
+                link_in_path,
+                path_length,
+                self.required_core_id,
+                self.required_start_index
+            ))
+            file.close()
