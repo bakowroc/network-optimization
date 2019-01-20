@@ -22,7 +22,7 @@ def get_time(duration):
 
 def run(all_demands: [Demand], topology: Topology) -> float:
     Logger.create_summary_file()
-    demands = all_demands[:5]
+    demands = all_demands
     print("Total demands: {}".format(len(demands)))
     iteration = 0
     start = time.time()
