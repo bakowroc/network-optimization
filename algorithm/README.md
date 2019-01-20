@@ -1,8 +1,16 @@
 ## Network optimization algorithm
+
+### Instalation:
+Python 3.6 and pip are needed
+
+```
+pip install numpy
+```
+
 ### Usage:
 
 ```
-main.py -e <entry_dir> -d <demands_file> -c <number_of_cores> [-s]
+python main.py -e <entry_dir> -d <demands_file> -c <number_of_cores> [-s]
 
 -e, --entry <entry_dir>          Absolute path to directory with files (must end with /)
 -d, --dfile <demands_file>       Full name of file with demands
