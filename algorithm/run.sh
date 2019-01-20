@@ -1,13 +1,8 @@
 CORES=(1 3 8)
 DEMAND_FILES=(
-    100_01.dem
-    100_08.dem
-    400_01.dem
     400_08.dem
     700_01.dem
-    700_00.dem
-    1000_01.dem
-    1000_08.dem
+    700_08.dem
     1300_01.dem
     1300_08.dem
     1600_01.dem

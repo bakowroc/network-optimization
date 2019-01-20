@@ -53,7 +53,7 @@ class Logger:
 
     @staticmethod
     def create_final_summary(dem_spec, demands_file, number_of_cores, duration, demand_file_desc='summary', demands_summary_file='./demands_summary.csv'):
-        summary_file_name = "./{}_{}.csv".format(demands_file, demand_file_desc)
+        summary_file_name = "./{}_{}_{}.csv".format(demands_file, demand_file_desc, number_of_cores)
         demands_data = genfromtxt(demands_summary_file, delimiter=';', dtype='U')
 
         if os.path.isfile(summary_file_name):
