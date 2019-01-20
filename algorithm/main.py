@@ -72,7 +72,7 @@ def main(argv):
         if '-h' in opts[0]:
             print(prog_spec)
             print('-e, --entry <entry_dir> \t Absolute path to directory with files (must end with /)')
-            print('-d, --dfile <demands_file> \t Full name of file with demands')
+            print('-d, --dfile <demands_file> \t A name of file with demands (with extension)')
             print('-c, --cores <number_of_cores> \t Number of cores in a single link (must be > 0)')
             print('-s, --summary \t \t \t Generates a brief summary in a format: <demands_file>_summary.csv')
             sys.exit()
