@@ -1,6 +1,0 @@
-Demand ID; Started at; Source Node; Destination node; Bitrate; Duration; Is success; Links in path; Path length; Is shortest path; Required core; Required index
-2; 0; 2; 20; 742; 11; True; [9, 14]; 1326; True; 0; 0
-0; 0; 8; 9; 905; 42; True; [20, 22, 28]; 816; True; 0; 0
-3; 0; 3; 4; 131; 83; True; [5, 8, 12]; 1246; True; 0; 0
-4; 0; 25; 4; 680; 160; True; [24, 38, 76]; 1473; True; 0; 0
-1; 0; 18; 26; 603; 321; True; [16, 19, 23, 26, 29, 42, 59, 77, 81]; 4650; True; 0; 0
