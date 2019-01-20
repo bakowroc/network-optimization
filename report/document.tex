@@ -9,6 +9,8 @@
 \usepackage{algorithmic}
 \usepackage{graphicx}
 \usepackage{textcomp}
+\usepackage{csvsimple}
+\usepackage{listings}
 \usepackage{xcolor}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -98,7 +100,7 @@ In the considered problem - dynamic RSSA - we focus on existing network in its o
 Suggested algorithm consists of a few components which are equivalents for real parts in SDM network topology. Respectively:
 \begin{itemize}
 \item \textbf{Node} - represents physical node within network topology, described by given name.
-\item \textbf{Link} - represents connection between pair of nodes and is a part of given paths required for each demand. Described as start and end point (both are node objects). Each link consists of known number of cores. Link objects are programmed to take care of channel allocation for cores within it for demands.
+\item \textbf{Link} - represents connection between pair of nodes and is a part of given paths required for each demand. Described as start and end point (both are node objects) also a link length is a known value. Each link consists of given number of cores. Link objects are programmed to take care of channel allocation for cores within it for demands.
 \item \textbf{Core} - represents physical core inside a link (fiber). Described by name (a link id) and iterated id. Each core contains a matrix (1x320) which represents slices and their indexes; 1 for taken index 0 for free. Each of the core objects checks if it can be allocated by given demand slices and based on the result whether to allocate or not space for them. When it's requested core object unallocates space (e.g. when demand is finished).
 \item \textbf{Path} - simplified structure containing a key, which is a value combined from source and the destination and a list of links which are continuously connected by nodes (i.e. those links create a valid \textbf{route}).
 \item \textbf{Demand} - a physical demand (request). Described as unique id, start (a number of iteration which demand needs to be sent in), the source and destination (both are node objects), bitrate (in Gbps), duration (a number of iterations) and slices (equivalent of real data slices).
@@ -111,30 +113,141 @@ Algorithm follows four principles:
 \item guard-band between neighbouring connections - each slices sequence in core has to have additional one slice taken as a guard-band to prevent crosstalk between connections (demands)
 \end{itemize}
 
-Basically algorithm is a loop over a given number of iterations (2000). At the beginning of each iteration given list of demands is filtered. This process is needed to skip those demands which do not require to be considered in the iteration. Basically filtering process split demands into two structures - demands which are going to be finished in the iteration and those which are going to start (includes those which were postponed due to insufficient resources - not enough free space in the previous iterations). Firstly a space should be unallocated, so before starting new demands those which are going to be finished are served. It prevents demands from being unnecessary postponing - less delays.
+Basically algorithm is a loop over a given number of iterations (2000). At the beginning of each iteration given list of demands are created based on theirs start and duration. This process is needed to skip those demands which do not require to be considered in the iteration. Basically this list can be split onto two - demands which are going to be finished in the iteration and those which are going to start. Firstly a space should be unallocated, so before starting new demands those which are going to be finished are served. It prevents from choosing different (in this case a longer one) path for a demand.
+
+\subsection{Checking space availability}
+At first algorithm checks path availability. If for some reason a path for given demand source and destination does not exists a demand is going to be failed. \ 
+When a path/s (usually more than just one) are found they are sorted by their lengths (shortest path in the beginning). Then the space is calculated for a path which was selected. A selected path can be unavailable (due to not enough free slices in cores) so a space availability check for a single demand can take place multiple times. If a available path are not found a demand is going to be failed. Otherwise a space for this demand is allocated. \
+
+\begin{small}
+\begin{lstlisting}[frame=single]
+for demand in prepared_demands:
+  paths_candidates = topology.get_paths(
+    demand.source.id,
+    demand.destination.id
+  )
+    
+  number_of_paths = len(paths_candidates)
+  chosen_path = 0
+  if number_of_paths > 0:
+    while chosen_path < number_of_paths:
+      is_success = demand.check_and_allocate(
+        iteration,
+        paths_candidates[chosen_path]
+      )
+
+      if is_success:
+        break
+      else:
+        chosen_path = chosen_path + 1
+  else:
+    demand.mark_as_failed()
+\end{lstlisting}
+\textit{An example code implementation for checking demand and selecting path.}
+\end{small}
+\\
+
+A space availability check process can be described by few steps:
+\begin{itemize}
+\item For each link in a selected path a space on given required core for required slice indexes are checked. If there is no restriction for required core and slice indexes a first core is checked (with checking slices from the beginning) - includes one extra slot needed due to spectrum non-overlapping principle. If a a space for demand was found for this link a next one is checked with the same value for required core and slices indexes (which were changed due to previous check). If there is no space on given indexes for a core a core is checked once more for space, excluding already checked. If a space was found for different indexes previous links are checked once more with new required slice indexes. If a core has no space at all for this demand another one is checked (regardless on given required core - if a space for a different core has been found, all links in a path are checked once more with new value for required core). If all possibilities was checked and at least one link cannot be allocated no matter what configuration is a demand is going to check another path (if avaiable). E.g:
+  \begin{itemize}
+  \item A path P1 was selected for a demand with N-1 slices . For a Link L1 a space on Core C1 was found on indexes [X1,...,XN]
+  \item However Link L2 has no space on core C1, but it was found successfully on core C2 with indexes [X5,...,XN-5].
+  \item Link L1 (and any other link) are checked with a new configuration of indexes and cores. A space for new requirements was found on other links
+  \item A demand is being allocated on core C2 with indexes [X5,...,XN-5]
+  \end{itemize}
+\end{itemize}
+
+\begin{small}
+\begin{lstlisting}[frame=single]
+for link in self.path.links:
+  r, si, c = link.check_channel_availability(
+    self.slices,
+    self.required_core_id,
+    self.required_start_index,
+    self.already_checked_indexes,
+    self.already_checked_cores,
+  ) 
+
+  if not r:
+    self.required_start_index = None
+    self.required_core_id = None
+    return False
+
+  if self.required_core_id is None:
+    self.required_core_id = c.id
+  elif self.required_core_id != c.id:
+    self.already_checked_indexes = []
+    self.already_checked_cores.append(c)
+    self.required_core_id = c.id
+    break
+
+  if self.required_start_index is None:
+    self.required_start_index = si
+  elif self.required_start_index != si:
+    self.already_checked_indexes.append(
+      self.required_start_index
+    )
+    self.required_start_index = si
+    break
+    
+  checked_links = checked_links + 1
+
+\end{lstlisting}
+\end{small}
+
+If for some reason a check was interrupted (not every link was checked) check again with new configuration:
+\begin{small}
+\begin{lstlisting}[frame=single]
+if checked_links != len(self.path.links):
+  return self.check_resources()
+\end{lstlisting}
+\textit{An example code implementation for checking core availability within links.}
+\end{small}
+\\
+
+\subsection{Allocating space for new demand}
+An allocation process takes place when a requirements for a demand are known (a path, required core and required slice indexes).
+
 \subsection{Unallocating space for demand}
 When demand requires to be finished, slices related to links in this demand path are being unallocated.
-Additionally, unallocation process is started each time a required core has been changed. It is needed because algorithm does not save information about available cores or cores already checked. It allocates space when core is available so space has to be freed each time selected cores are being shuffled (explained in section B).
-\subsection{Allocating space for new demand}
-Based on each demand source and destination a path is selected (from given ones) and then for each link in the path a core is being selected.
+
+\section{Related software}
+\subsection{File parser}
+In addition to algorithm implementation a programmable file parser for given data files was implemented.
 \\ \\
-Due to spectrum continuity principle demand requires same core being used in each link in the path. Selecting core for each link can be explained in a few steps:
-\begin{enumerate}
-\item For the first link, if no core has been considered yet first available (with enough free slices) is selected and saved as required to be used in the next links
-\item For each next link is needed to select same core (with same id) and then the next link is being considered. If required core cannot be selected or some index of allocated slices is already taken a next available core is selected.
-\item Due to required core change all previously links have to be recalculated (a change of selected core) as mentioned in step 2
-\item If cores in all links was successfully selected a demand is processing (for given number of iterations - duration). If at some point core/s could have not been selected a demand is going to be postponed (is waiting) and will be reconsidering each further iteration. An information about delay (a number of iterations) is given when demands will start successfully.
-\end{enumerate}
-An example core allocation can be seen in Fig.1
-\\ \\ \\
-\begin{figure}[H]
-\includegraphics[width=\linewidth]{plot_link.png}
-\\
-\textbf{Fig. 1} \textit{An example fiber cores allocation for 4 demands}
-\end{figure}
+Based on three files a topology of a network is created. 
+\begin{itemize}
+\item f30.spec contains number of slices related to bitrate for each path
+\item ff30.pat contains connections between pair of nodes (Links)
+\item ff.net contains lengths of Links 
+\end{itemize}
+
+\noindent Demands objects are created based on fourth file:
+\begin{itemize}
+\item \textit{net\_load}\_\textit{set\_nr}.dem, where
+\begin{itemize}
+\item \textit{net\_load} is a average network load in Erlangs
+\item \textit{set\_nr} is number of the demands set
+\end{itemize}
+\end{itemize}
+
+\subsection{Logger}
+A short piece of program which implements creating brief summary in a *.csv format for results output such as:
+\begin{itemize}
+\item used configration (files, number of cores etc)
+\item duration of a allocation process for a demand file
+\item success / failure ratio for demands
+\item number of shortest paths used
+\end{itemize}
+
+\section{Algorithm results}
+\begin{footnotesize}
+\csvautotabular[separator=semicolon]{100_07.dem_summary.csv}
+\end{footnotesize}
 
 \section{Tools used}
-To solve the optimization problem we use Python 3.7.1 \cite{python} programming language due to it's flexibility, ease of use and huge amount of well developed mathematics and data structures packages. Python is also the language we know the most among the others so we can be sure solving the problem within it is going to go without solving side problems such as language syntax.
+To solve the optimization problem we use Python 3.6.0 \cite{python} programming language due to it's flexibility, ease of use and huge amount of well developed mathematics and data structures packages. Python is also the language we know the most among the others so we can be sure solving the problem within it is going to go without solving side problems such as language syntax.
 \\ \\
 For more complex data structures we use Numpy \cite{numpy} which is a Python package. It provides structures like matrix, vector or more advanced dictionaries than Python itself. With this package also comes methods for that structures, like deleting, reshaping, transforming or transposing.
 \\ \\

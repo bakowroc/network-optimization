@@ -52,10 +52,9 @@ class Logger:
             file.close()
 
     @staticmethod
-    def create_final_summary(dem_spec, demands_file, number_of_cores, duration):
-        demands_summary_file = './demands_summary.csv'
-        summary_file_name = "./{}_summary.csv".format(demands_file)
-        demands_data = genfromtxt(demands_summary_file, delimiter=';', dtype=None)
+    def create_final_summary(dem_spec, demands_file, number_of_cores, duration, demand_file_desc='summary', demands_summary_file='./demands_summary.csv'):
+        summary_file_name = "./{}_{}.csv".format(demands_file, demand_file_desc)
+        demands_data = genfromtxt(demands_summary_file, delimiter=';', dtype='U')
 
         if os.path.isfile(summary_file_name):
             os.remove(summary_file_name)
@@ -65,11 +64,16 @@ class Logger:
         total_demands = len(demands_data)
 
         for row in demands_data:
-            if not bool(row[6]):
+            if 'False' in row[6]:
                 number_of_failures = number_of_failures + 1
 
-            if bool(row[9]):
+            if 'True' in row[9]:
                 number_of_shortest_paths = number_of_shortest_paths + 1
+
+        try:
+            duration = round(duration, 2)
+        except TypeError:
+            pass
 
         with open(summary_file_name, "a") as file:
             file.write('{}; {}; {}; {}; {}; {}\n {}; {}; {}; {}; {}; {}'.format(
@@ -84,7 +88,7 @@ class Logger:
                 number_of_failures,
                 number_of_shortest_paths,
                 number_of_cores,
-                round(duration, 2)
+                duration,
             ))
             file.close()
 
