@@ -149,12 +149,12 @@ for demand in prepared_demands:
 
 A space availability check process can be described by few steps:
 \begin{itemize}
-\item For each link in a selected path a space on given required core for required slice indexes are checked. If there is no restriction for required core and slice indexes a first core is checked (with checking slices from the beginning) - includes one extra slot needed due to spectrum non-overlapping principle. If a space for demand was found for this link a next one is checked with the same value for required core and slices indexes (which were changed due to previous check). If there is no space on given indexes for a core a core is checked once more for space, excluding already checked. If a space was found for different indexes previous links are checked once more with new required slice indexes. If a core has no space at all for this demand another one is checked (regardless on given required core - if a space for a different core has been found, all links in a path are checked once more with new value for required core). If all possibilities was checked and at least one link cannot be allocated no matter what configuration is a demand is going to check another path (if avaiable). E.g:
+\item For each link in a selected path a space on given required core for required slice indexes are checked. If there is no restriction for required core and slice indexes a first core is checked (with checking slices from the beginning) - includes one extra slot needed due to spectrum non-overlapping principle. If a a space for demand was found for this link a next one is checked with the same value for required core and slices indexes (which were changed due to previous check). If there is no space on given indexes for a core a core is checked once more for space, excluding already checked. If a space was found for different indexes previous links are checked once more with new required slice indexes. If a core has no space at all for this demand another one is checked (regardless on given required core - if a space for a different core has been found, all links in a path are checked once more with new value for required core). If all possibilities was checked and at least one link cannot be allocated no matter what configuration is a demand is going to check another path (if avaiable). E.g:
   \begin{itemize}
-  \item A path P1 was selected for a demand with N-1 slices . For a Link L1 a space on Core C1 was found on indexes [X0,...,XN]
-  \item However Link L2 has no space on core C1, but it was found successfully on core C2 with indexes [X5,...,XN+5].
+  \item A path P1 was selected for a demand with N-1 slices . For a Link L1 a space on Core C1 was found on indexes [X1,...,XN]
+  \item However Link L2 has no space on core C1, but it was found successfully on core C2 with indexes [X5,...,XN-5].
   \item Link L1 (and any other link) are checked with a new configuration of indexes and cores. A space for new requirements was found on other links
-  \item A demand is being allocated on core C2 with indexes [X5,...,XN+5]
+  \item A demand is being allocated on core C2 with indexes [X5,...,XN-5]
   \end{itemize}
 \end{itemize}
 
@@ -172,8 +172,6 @@ for link in self.path.links:
   if not r:
     self.required_start_index = None
     self.required_core_id = None
-    self.already_checked_indexes = []
-    self.already_checked_cores = []
     return False
 
   if self.required_core_id is None:
@@ -245,8 +243,36 @@ A short piece of program which implements creating brief summary in a *.csv form
 
 \section{Algorithm results}
 \begin{footnotesize}
-\csvautotabular[separator=semicolon]{100_07.dem_summary.csv}
+\noindent
+\csvautotabular[separator=semicolon]{100_01.dem_summary_fixed_1.csv}\\\\
+\csvautotabular[separator=semicolon]{100_01.dem_summary_fixed_3.csv}\\\\
+\csvautotabular[separator=semicolon]{100_01.dem_summary_fixed_8.csv}\\\\
+\csvautotabular[separator=semicolon]{100_08.dem_summary_fixed_1.csv}\\\\
+\csvautotabular[separator=semicolon]{100_08.dem_summary_fixed_3.csv}\\\\
+\csvautotabular[separator=semicolon]{100_08.dem_summary_fixed_8.csv}\\\\
+\csvautotabular[separator=semicolon]{400_01.dem_summary_fixed_1.csv}\\\\
+\csvautotabular[separator=semicolon]{400_01.dem_summary_fixed_3.csv}\\\\
+\csvautotabular[separator=semicolon]{400_01.dem_summary_fixed_8.csv}\\\\
+\csvautotabular[separator=semicolon]{400_08.dem_summary_fixed_1.csv}\\\\
+\csvautotabular[separator=semicolon]{400_08.dem_summary_fixed_3.csv}\\\\
+\csvautotabular[separator=semicolon]{400_08.dem_summary_fixed_8.csv}\\\\
+\csvautotabular[separator=semicolon]{1000_01.dem_summary_fixed_1.csv}\\\\
+\csvautotabular[separator=semicolon]{1000_01.dem_summary_fixed_8.csv}\\\\
+\csvautotabular[separator=semicolon]{1000_08.dem_summary_fixed_1.csv}\\\\
+\csvautotabular[separator=semicolon]{1000_08.dem_summary_fixed_3.csv}\\\\
+\csvautotabular[separator=semicolon]{2000_01.dem_summary_fixed_1.csv}\\\\
+\csvautotabular[separator=semicolon]{2000_01.dem_summary_fixed_3.csv}\\\\
+\csvautotabular[separator=semicolon]{2000_08.dem_summary_fixed_1.csv}\\\\
+\csvautotabular[separator=semicolon]{2000_08.dem_summary_fixed_3.csv}\\\\
 \end{footnotesize}
+Columns in these tables are, accordingly: 
+\\-Erlangs - unit of the network load
+\\-Total demands - how many demands there were
+\\-Failed - amount of failed demands
+\\-Shortest - shortest path
+\\-Cores - number of cores used in the simulation
+\\-Duration - time taken by the simulation\\\\
+The specific feature of our program is that it does not create only one occurence of path, and accordingly that is why there from time to time appears to be the same amount of fails. 
 
 \section{Tools used}
 To solve the optimization problem we use Python 3.6.0 \cite{python} programming language due to it's flexibility, ease of use and huge amount of well developed mathematics and data structures packages. Python is also the language we know the most among the others so we can be sure solving the problem within it is going to go without solving side problems such as language syntax.
