@@ -3,7 +3,6 @@
 venv
 data
 entry
-*.csv
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
