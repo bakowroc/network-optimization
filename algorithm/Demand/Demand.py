@@ -12,6 +12,7 @@ class Demand:
         self.duration = duration
         self.slices = 0
         self.path = None
+        self.chosen_path = None
 
         self.required_core_id = None
         self.required_start_index = None
@@ -28,14 +29,15 @@ class Demand:
         self.write_csv()
 
     def check_and_allocate(self, current_iteration, path: Path):
-        self.path = path
-        self.calculate_slices()
-
         if current_iteration == self.started_at:
+            self.path = path
+            self.calculate_slices()
+
             result = self.check_resources()
             if not result:
                 return False
 
+            self.chosen_path = self.path
             self.allocate_resources()
             self.is_success = True
         elif current_iteration == self.started_at + self.duration and self.is_success:
@@ -48,51 +50,50 @@ class Demand:
 
     def check_resources(self) -> bool:
         checked_links = 0
+        while checked_links != len(self.path.links):
+            checked_links = 0
 
-        for link in self.path.links:
-            result, start_index, core = link.check_channel_availability(
-                self.slices,
-                self.required_core_id,
-                self.required_start_index,
-                self.already_checked_indexes,
-                self.already_checked_cores,
-            )
+            for link in self.path.links:
+                result, start_index, core = link.check_channel_availability(
+                    self.slices,
+                    self.required_core_id,
+                    self.required_start_index,
+                    self.already_checked_indexes,
+                    self.already_checked_cores,
+                )
 
-            if not result:
-                self.required_start_index = None
-                self.required_core_id = None
-                self.already_checked_indexes = []
-                self.already_checked_cores = []
-                return False
+                if not result:
+                    self.required_start_index = None
+                    self.required_core_id = None
+                    self.already_checked_indexes = []
+                    self.already_checked_cores = []
+                    return False
 
-            if self.required_core_id is None:
-                self.required_core_id = core.id
-            elif self.required_core_id != core.id:
-                self.already_checked_indexes = []
-                self.already_checked_cores.append(core)
-                self.required_core_id = core.id
-                break
+                if self.required_core_id is None:
+                    self.required_core_id = core.id
+                elif self.required_core_id != core.id:
+                    self.already_checked_indexes = []
+                    self.already_checked_cores.append(core)
+                    self.required_core_id = core.id
+                    break
 
-            if self.required_start_index is None:
-                self.required_start_index = start_index
-            elif self.required_start_index != start_index:
-                self.already_checked_indexes.append(self.required_start_index)
-                self.required_start_index = start_index
-                break
+                if self.required_start_index is None:
+                    self.required_start_index = start_index
+                elif self.required_start_index != start_index:
+                    self.already_checked_indexes.append(self.required_start_index)
+                    self.required_start_index = start_index
+                    break
 
-            checked_links = checked_links + 1
-
-        if checked_links != len(self.path.links):
-            return self.check_resources()
+                checked_links = checked_links + 1
 
         return True
 
     def allocate_resources(self):
-        for link in self.path.links:
+        for link in self.chosen_path.links:
             link.allocate_channel(self)
 
     def unallocate_resources(self):
-        for link in self.path.links:
+        for link in self.chosen_path.links:
             link.unallocate_channel(self)
 
     def write_csv(self):

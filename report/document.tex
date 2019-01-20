@@ -243,36 +243,55 @@ A short piece of program which implements creating brief summary in a *.csv form
 
 \section{Algorithm results}
 \begin{footnotesize}
-\noindent
+\noindent \textit{Results for file 100\_01.dem} \\
 \csvautotabular[separator=semicolon]{100_01.dem_summary_fixed_1.csv}\\\\
 \csvautotabular[separator=semicolon]{100_01.dem_summary_fixed_3.csv}\\\\
 \csvautotabular[separator=semicolon]{100_01.dem_summary_fixed_8.csv}\\\\
+
+\noindent \textit{Results for file 100\_08.dem} \\
 \csvautotabular[separator=semicolon]{100_08.dem_summary_fixed_1.csv}\\\\
 \csvautotabular[separator=semicolon]{100_08.dem_summary_fixed_3.csv}\\\\
 \csvautotabular[separator=semicolon]{100_08.dem_summary_fixed_8.csv}\\\\
+
+\noindent \textit{Results for file 400\_01.dem} \\
 \csvautotabular[separator=semicolon]{400_01.dem_summary_fixed_1.csv}\\\\
 \csvautotabular[separator=semicolon]{400_01.dem_summary_fixed_3.csv}\\\\
 \csvautotabular[separator=semicolon]{400_01.dem_summary_fixed_8.csv}\\\\
+
+\noindent \textit{Results for file 400\_08.dem} \\
 \csvautotabular[separator=semicolon]{400_08.dem_summary_fixed_1.csv}\\\\
 \csvautotabular[separator=semicolon]{400_08.dem_summary_fixed_3.csv}\\\\
 \csvautotabular[separator=semicolon]{400_08.dem_summary_fixed_8.csv}\\\\
+
+\noindent \noindent \textit{Results for file 1000\_01.dem} \\
 \csvautotabular[separator=semicolon]{1000_01.dem_summary_fixed_1.csv}\\\\
 \csvautotabular[separator=semicolon]{1000_01.dem_summary_fixed_8.csv}\\\\
+
+\noindent \textit{Results for file 1000\_08.dem} \\ 
 \csvautotabular[separator=semicolon]{1000_08.dem_summary_fixed_1.csv}\\\\
 \csvautotabular[separator=semicolon]{1000_08.dem_summary_fixed_3.csv}\\\\
+
+\noindent \textit{Results for file 2000\_01.dem} \\
 \csvautotabular[separator=semicolon]{2000_01.dem_summary_fixed_1.csv}\\\\
 \csvautotabular[separator=semicolon]{2000_01.dem_summary_fixed_3.csv}\\\\
+
+\noindent \textit{Results for file 2000\_08.dem} \\
 \csvautotabular[separator=semicolon]{2000_08.dem_summary_fixed_1.csv}\\\\
 \csvautotabular[separator=semicolon]{2000_08.dem_summary_fixed_3.csv}\\\\
 \end{footnotesize}
 Columns in these tables are, accordingly: 
-\\-Erlangs - unit of the network load
-\\-Total demands - how many demands there were
-\\-Failed - amount of failed demands
-\\-Shortest - shortest path
-\\-Cores - number of cores used in the simulation
-\\-Duration - time taken by the simulation\\\\
-The specific feature of our program is that it does not create only one occurence of path, and accordingly that is why there from time to time appears to be the same amount of fails. 
+\begin{itemize}
+\item Erlangs - unit of the network load
+\item Total demands - how many demands there were
+\item Failed - amount of failed demands
+\item Shortest - number of demands which used the shortest path
+\item Cores - number of cores used in the simulation
+\item Duration - time taken by the simulation
+\end{itemize}
+
+As expected the number of failed demands is much higher for those simulations with less core used.\\
+
+The specific feature of our program is that it does not create only one occurrence of path, and accordingly that is why there from time to time appears to be the same amount of fails. 
 
 \section{Tools used}
 To solve the optimization problem we use Python 3.6.0 \cite{python} programming language due to it's flexibility, ease of use and huge amount of well developed mathematics and data structures packages. Python is also the language we know the most among the others so we can be sure solving the problem within it is going to go without solving side problems such as language syntax.

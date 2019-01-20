@@ -1,8 +1,7 @@
-CORES=(1 3 8)
+CORES=(3 8)
 DEMAND_FILES=(
-    400_08.dem
-    700_01.dem
-    700_08.dem
+    1000_01.dem
+    1000_08.dem
     1300_01.dem
     1300_08.dem
     1600_01.dem
