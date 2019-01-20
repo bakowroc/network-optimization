@@ -5,22 +5,19 @@ from Demand import Demand
 from Logger.Logger import Logger
 from Node import Node
 
-NUMBER_OF_CORES = 3
-
-
 class Link:
-    def __init__(self, id, start: Node, end: Node, length):
+    def __init__(self, id, start: Node, end: Node, number_of_cores, length):
         self.id = id
         self.name = "L{}_{}".format(start.id, end.id)
         self.start = start
         self.end = end
         self.length = length
-        self.cores = self.create_cores()
+        self.cores = self.create_cores(number_of_cores)
 
-    def create_cores(self):
+    def create_cores(self, number_of_cores):
         cores = []
-        for index in range(NUMBER_OF_CORES):
-            name = "core_{}".format(str(self.start) + str(self.end))
+        for index in range(number_of_cores):
+            name = "core_{}_{}".format(index, self.name)
             cores.append(Core(name, index))
 
         return cores
@@ -36,22 +33,21 @@ class Link:
             required_core = list(filter(lambda core: required_core_id == core.id, self.cores))[0]
             r, si, c = check_core(required_core)
             if r:
-                return True, si, c
+                return r, si, c
 
-        cores = list(set(self.cores) - {required_core} - set(already_checked_cores))
+        available_cores = list(set(self.cores) - {required_core} - set(already_checked_cores))
+        if len(available_cores) > 0:
+            for core in available_cores:
+                r, si, c = check_core(core)
+                if r:
+                    return r, si, c
 
-        for core in cores:
-            r, si, c = check_core(core)
-            if r:
-                return True, si, c
-
-        return False, required_core_id, required_start_index
+        return False, None, None
 
     def allocate_channel(self, demand: Demand):
         core = list(filter(lambda core: demand.required_core_id == core.id, self.cores))[0]
-        core.allocate_for_demand(demand.id, demand.slices, demand.required_start_index)
+        core.allocate_for_demand(demand.slices, demand.required_start_index)
 
     def unallocate_channel(self, demand: Demand):
-        cores = filter(lambda core: core.id == demand.required_core_id, self.cores)
-        for core in cores:
-            core.unallocate_for_demand(demand.id, demand.slices)
+        core = list(filter(lambda core: core.id == demand.required_core_id, self.cores))[0]
+        core.unallocate_for_demand(demand.slices, demand.required_start_index)

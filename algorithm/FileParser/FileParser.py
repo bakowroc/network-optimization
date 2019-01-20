@@ -6,9 +6,10 @@ from Topology.Topology import Topology
 
 
 class FileParser:
-    def __init__(self, entry_dir, demands_file):
+    def __init__(self, entry_dir, demands_file, number_of_cores):
         self.entry_dir = entry_dir
         self.demands_file = demands_file
+        self.number_of_cores = int(number_of_cores)
         self.topology = Topology()
         self.demands = []
 
@@ -49,7 +50,7 @@ class FileParser:
                 for node_end_id, path_len in enumerate(path_lengths):
                     if path_len is not 0:
                         node_start, node_end = self.get_ffnet_node(node_start_id, node_end_id)
-                        link = Link(id=link_id, start=node_start, end=node_end, length=path_len)
+                        link = Link(id=link_id, start=node_start, end=node_end, number_of_cores=self.number_of_cores, length=path_len)
                         self.topology.add_link(link)
                         link_id = link_id + 1
 
@@ -144,7 +145,7 @@ class FileParser:
         self.parse_ff30pat()
         self.parse_dem()
 
-        return self.demands, self.topology
+        return self.demands, self.topology, self.dem
 
     def ffnet_check(self):
         if self.ffnet['number_of_nodes'] != len(self.topology.nodes):
@@ -157,8 +158,6 @@ class FileParser:
             print("Was {}".format(len(self.topology.links)))
             print("Should be {}".format(self.ffnet['number_of_links']))
             exit(1)
-        else:
-            print("File {} was parsed correctly".format(self.ffnet['name']))
 
     def ff30pat_check(self):
         number_of_paths_chunk = len(list(filter(lambda path: path.nr == 29, self.topology.paths)))
@@ -171,5 +170,3 @@ class FileParser:
         elif number_of_paths_chunk != self.ff30pat['number_of_paths'] / self.ff30pat['paths_chunks_number']:
             print("File {} was parsed incorrectly: {}".format(self.ff30pat['name'], "wrong number of path chunks"))
             exit(1)
-        else:
-            print("File {} was parsed correctly".format(self.ff30pat['name']))

@@ -1,4 +1,3 @@
-from Logger.Logger import Logger
 from Node import Node
 from Path import Path
 
@@ -39,9 +38,11 @@ class Demand:
 
             self.allocate_resources()
             self.is_success = True
-        elif current_iteration == self.started_at + self.duration:
+        elif current_iteration == self.started_at + self.duration and self.is_success:
             self.write_csv()
             self.unallocate_resources()
+        elif not self.is_success:
+            self.mark_as_failed()
 
         return True
 
@@ -58,6 +59,8 @@ class Demand:
             )
 
             if not result:
+                self.required_start_index = None
+                self.required_core_id = None
                 return False
 
             if self.required_core_id is None:
@@ -78,7 +81,7 @@ class Demand:
             checked_links = checked_links + 1
 
         if checked_links != len(self.path.links):
-            self.check_resources()
+            return self.check_resources()
 
         return True
 
@@ -94,13 +97,15 @@ class Demand:
         filename = "./demands_summary.csv"
         if self.path:
             link_in_path = list(map(lambda link: link.id, self.path.links))
-            path_length = self.path.get_length() or [],
+            path_length = self.path.get_length()
+            is_shortest = self.path.nr == 0
         else:
             link_in_path = None
             path_length = None
+            is_shortest = None
 
         with open(filename, "a") as file:
-            file.write('{}; {}; {}; {}; {}; {}; {}; {}; {}; {}; {}\n'.format(
+            file.write('{}; {}; {}; {}; {}; {}; {}; {}; {}; {}; {}; {}\n'.format(
                 self.id,
                 self.started_at,
                 self.source.id,
@@ -110,7 +115,7 @@ class Demand:
                 self.is_success,
                 link_in_path,
                 path_length,
+                is_shortest,
                 self.required_core_id,
-                self.required_start_index
-            ))
+                self.required_start_index))
             file.close()

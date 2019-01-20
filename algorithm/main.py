@@ -1,77 +1,29 @@
 ## Nodes
 import datetime
 import getopt
-import shutil
 import sys
 import time
 
 from Demand import Demand
-from Link.Link import Link
 import os
-import numpy as np
-import matplotlib.pyplot as plt
 
 ## Consts
 from FileParser.FileParser import FileParser
+from Logger.Logger import Logger
 from Topology import Topology
 
 TOTAL_DURATION = 2000
 PROCEED = True
 
 
-def show_chart(link: Link):
-    legend = []
-    for core in link.cores:
-        filename = './data/{}/{}_{}_results.csv'.format(link.id, link.id, core.id)
-        data = np.genfromtxt(filename, delimiter=',', names=['iteration', 'slices'])
-        legend.append("Core {}".format(core.id))
-        plt.plot(data['iteration'], data['slices'],  linewidth=2)
-
-    plt.legend(legend)
-    plt.title("Link {}".format(link.id))
-    plt.xlabel('Iterations')
-    plt.ylabel('Slices taken')
-    plt.show(block=True)
-
-
 def get_time(duration):
     return str(datetime.timedelta(seconds=int(duration)))
 
 
-def progress_bar(value, endvalue, current_duration, bar_length=80):
-    percent = float(value) / endvalue
-    arrow = '-' * int(round(percent * bar_length) - 1) + '>'
-    spaces = ' ' * (bar_length - len(arrow))
-
-    sys.stdout.write("\rProgress: [{0}] {1}% {2}".format(arrow + spaces, int(round(percent * 100)), current_duration))
-    sys.stdout.flush()
-
-
-def create_summary_file():
-    filename = "./demands_summary.csv"
-    if os.path.isfile(filename):
-        os.remove(filename)
-
-    with open(filename, "a") as file:
-        file.write('{}; {}; {}; {}; {}; {}; {}; {}; {}; {}; {}\n'.format(
-            "Demand ID",
-            "Started at",
-            "Source Node",
-            "Destination node",
-            "Bitrate",
-            "Duration",
-            "Is success",
-            "Links in path",
-            "Path length",
-            "Required core",
-            "Required index"
-        ))
-        file.close()
-
-
-def run(all_demands: [Demand], topology: Topology):
-    create_summary_file()
-    demands = all_demands
+def run(all_demands: [Demand], topology: Topology) -> float:
+    Logger.create_summary_file()
+    demands = all_demands[:5]
+    print("Total demands: {}".format(len(demands)))
     iteration = 0
     start = time.time()
 
@@ -96,49 +48,74 @@ def run(all_demands: [Demand], topology: Topology):
                 demand.mark_as_failed()
 
         current_duration = time.time() - start
-        progress_bar(iteration, TOTAL_DURATION, get_time(current_duration))
+        Logger.progress_bar(iteration, TOTAL_DURATION, get_time(current_duration))
         iteration = iteration + 1
 
     duration = time.time() - start
-    print("\n Finished. Total time duration: {}s".format(get_time(duration)))
+    print("\n Finished. Total time duration: {}".format(get_time(duration)))
+    return duration
 
 
 def main(argv):
+    prog_spec = 'main.py -e <entry_dir> -d <demands_file> -c <number_of_cores> [-s] \n'
     entry_dir = ''
     demands_file = ''
+    number_of_cores = ''
+    write_summary_file = False
 
     try:
-        opts, args = getopt.getopt(argv, "he:d:", ["entry=", "dfile="])
+        opts, args = getopt.getopt(argv, "he:d:c:s", ["entry=", "dfile=", "cores=", "summary"])
 
-        if len(opts) < 2:
-            print(opts)
-            raise getopt.GetoptError('main.py -e <entry_dir> -d <demands_file>')
+        if len(opts) == 0:
+            raise getopt.GetoptError(prog_spec)
+
+        if '-h' in opts[0]:
+            print(prog_spec)
+            print('-e, --entry <entry_dir> \t Absolute path to directory with files (must end with /)')
+            print('-d, --dfile <demands_file> \t Full name of file with demands')
+            print('-c, --cores <number_of_cores> \t Number of cores in a single link (must be > 0)')
+            print('-s, --summary \t \t \t Generates a brief summary in a format: <demands_file>_summary.csv')
+            sys.exit()
+
+        if len(opts) < 3:
+            raise getopt.GetoptError(prog_spec)
 
         entry = opts[0][1]
         dfile = opts[1][1]
+        cores = opts[2][1]
 
         if not os.path.isdir(entry):
             raise getopt.GetoptError('Directory not found: {}'.format(entry))
         if not os.path.isfile(entry + dfile):
             raise getopt.GetoptError('File not found: {}'.format(entry + dfile))
+        if len(cores) < 1:
+            raise getopt.GetoptError('There has to be at least one core. Given {}'.format(cores))
 
     except getopt.GetoptError as err:
         print(err)
+        print("Try -h, --help for help")
         sys.exit(2)
 
     for opt, arg in opts:
-        if opt == '-h':
-            print('main.py -e <entry_dir> -d <demands_file>')
-            sys.exit()
-        elif opt in ("-e", "--entry_dir"):
+        if opt in ("-e", "--entry"):
             entry_dir = arg
         elif opt in ("-d", "--dfile"):
             demands_file = arg
+        elif opt in ("-c", "--cores"):
+            number_of_cores = arg
+        elif opt in ("-s", "--summary"):
+            write_summary_file = True
 
-    file_parser = FileParser(entry_dir, demands_file)
-    demands, topology = file_parser.run()
+    file_parser = FileParser(entry_dir, demands_file, number_of_cores)
+    demands, topology, dem_spec = file_parser.run()
 
-    run(demands, topology)
+    print("Entry directory: {}".format(entry_dir))
+    print("Demands file: {}".format(demands_file))
+    print("Number of cores: {}".format(number_of_cores))
+    duration = run(demands, topology)
+
+    if write_summary_file:
+        Logger.create_final_summary(dem_spec, demands_file, number_of_cores, duration)
 
 
 if __name__ == "__main__":
