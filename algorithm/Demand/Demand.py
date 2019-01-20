@@ -61,6 +61,8 @@ class Demand:
             if not result:
                 self.required_start_index = None
                 self.required_core_id = None
+                self.already_checked_indexes = []
+                self.already_checked_cores = []
                 return False
 
             if self.required_core_id is None:
@@ -98,7 +100,10 @@ class Demand:
         if self.path:
             link_in_path = list(map(lambda link: link.id, self.path.links))
             path_length = self.path.get_length()
-            is_shortest = self.path.nr == 0
+            if self.is_success:
+                is_shortest = self.path.nr == 0
+            else:
+                is_shortest = None
         else:
             link_in_path = None
             path_length = None
